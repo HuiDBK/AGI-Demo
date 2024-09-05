@@ -17,3 +17,6 @@ class WebPage(BaseModel):
     url: str
     content: str
     inner_text: str
+
+    def __repr__(self):
+        return f"WebPage(url={self.url}, content={self.content[:20]}, inner_text={self.inner_text[:20]})"

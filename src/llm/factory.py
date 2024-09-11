@@ -15,7 +15,10 @@ T_BaseLLMClient = TypeVar("T_BaseLLMClient", bound=BaseLLMClient)
 
 
 class LLMFactory:
-    LLM_CLIENT_MAPPING: dict[LLMType, Type[BaseLLMClient]] = {LLMType.OPENAI: OpenAIClient}
+    LLM_CLIENT_MAPPING: dict[LLMType, Type[BaseLLMClient]] = {
+        LLMType.OPENAI: OpenAIClient,
+        LLMType.DEEPSEEK: OpenAIClient,
+    }
 
     @classmethod
     def build(cls, llm_type: LLMType, llm_config: BaseLLMConfig, **kwargs) -> T_BaseLLMClient:

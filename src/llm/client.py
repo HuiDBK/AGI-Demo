@@ -20,10 +20,6 @@ class OpenAIClient(BaseLLMClient):
             **kwargs,
         )
 
-    def setup_system_content(self, system_content: str):
-        self.system_role_content["content"] = system_content
-        return self.system_role_content
-
     def setup_local_memory_store(self):
         self.memory_store = "local-memory"
         return self.memory_store
@@ -48,7 +44,23 @@ class OpenAIClient(BaseLLMClient):
     def clear_context(self):
         self.messages.clear()
 
-    def _handle_response(self, response):
+    def _stream_maker(self, response):
+        """流式处理"""
+        full_content = ""
+        for resp in response:
+            content = resp.choices[0].delta.content
+            yield content
+            full_content = f"{full_content}{content}"
+
+        if self.memory_store:
+            # store ask context
+            self.messages.append({"role": "assistant", "content": full_content})
+
+    def _handle_response(self, response, stream: bool = False):
+        if stream:
+            # 流式处理
+            return self._stream_maker(response)
+
         resp_message = response.choices[0].message
         if self.memory_store:
             # store ask context
@@ -56,18 +68,15 @@ class OpenAIClient(BaseLLMClient):
 
         return resp_message.content
 
-    def ask(self, query: str, stream: bool = False, response_format=None, **kwargs):
+    def ask(self, query: str, stream: bool = False, temperature: float = None, response_format=None, **kwargs):
         messages = self.get_messages(query)
         response = self.llm_client.chat.completions.create(
             model=self.llm_config.llm_model.value,
             messages=messages,
             stream=stream,
             response_format=response_format,
+            temperature=temperature,
             **kwargs,
         )
-        if stream:
-            for resp in response:
-                yield resp.choices[0].delta.content
-        else:
-            resp_content = self._handle_response(response)
-            return resp_content
+        resp_content = self._handle_response(response, stream)
+        return resp_content

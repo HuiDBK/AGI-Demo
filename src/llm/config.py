@@ -8,7 +8,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from src.llm.schemas import OpenAIModeType
+from src.llm.schemas import OpenAIModel
 
 
 class BaseLLMConfig(BaseModel):
@@ -17,4 +17,4 @@ class BaseLLMConfig(BaseModel):
 
 
 class OpenAIConfig(BaseLLMConfig):
-    llm_model: OpenAIModeType = Field(description="OpenAI model type")
+    llm_model: OpenAIModel = Field(description="OpenAI model type")

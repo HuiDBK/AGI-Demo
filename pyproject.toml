@@ -11,6 +11,7 @@ python = "^3.9"
 openai = "^1.41.1"
 playwright = "^1.46.0"
 pydantic = "^2.8.2"
+hui-tools = "0.5.2"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -7,6 +7,7 @@
 import asyncio
 
 from playwright.async_api import async_playwright
+from py_tools.logging import logger
 
 from src.tools.schemas import LinkInfo, WebPage
 
@@ -47,6 +48,7 @@ class BrowserEngine:
         timeout = timeout * 1000  # unit ms
         async with page:
             await page.goto(url)
+            await page.wait_for_load_state("networkidle")
             content = await page.content()
 
             if selector == "body":
@@ -66,8 +68,8 @@ class BrowserEngine:
             await self.launch_browser()
             page = await self.browser.new_page()
             return await self._parse_page_content(page, url, selector, timeout)
-        except Exception:
-            print("e")
+        except Exception as e:
+            logger.error(f"_fetch_page_content error: {e}")
             return WebPage(url="", content="", inner_text="")
 
     async def fetch_page_content(self, urls: list, selector="body", timeout=None) -> tuple[WebPage]:
@@ -217,17 +219,24 @@ class BrowserEngine:
 
 
 async def main():
-    engine = BrowserEngine(headless=True)
+    engine = BrowserEngine(headless=False)
     # await engine.baidu_search("python异步框架大战", max_results=5)
     # await engine.bing_search("重试装饰器", max_results=5)
     # await engine.close_browser()
 
-    await engine.google_search("metagpt", max_results=3)
+    # await engine.google_search("metagpt", max_results=3)
+    await asyncio.gather(
+        engine.google_search("metagpt", max_results=3),
+        engine.baidu_search("python异步框架大战", max_results=5),
+        engine.fetch_page_content(["https://juejin.cn/post/7283532551473725497"], timeout=3),
+    )
     # urls = [result.url for result in results]
     # urls = ["https://juejin.cn/post/7283532551473725497"]
     # web_pages = await engine.fetch_page_content(urls, timeout=1)
     # for web_page in web_pages:
     #     print(web_page.inner_text)
+
+    await asyncio.sleep(10)
 
 
 if __name__ == "__main__":

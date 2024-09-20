@@ -20,7 +20,15 @@ class BaseLLMClient:
         self.system_role_content = copy.deepcopy(self.default_system_role_content)
         self.kwargs = kwargs
 
-    def setup_system_content(self, system_content: str):
+    def setup_system_content(self, system_content: str = None):
+        """
+        为llm配置系统提示词
+        Args:
+            system_content: None 使用默认的系统提示词
+
+        Returns:
+        """
+        system_content = system_content or self.default_system_role_content.get("content")
         self.system_role_content["content"] = system_content
         return self.system_role_content
 

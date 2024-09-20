@@ -9,6 +9,8 @@ from src.tools.browser_engine import BrowserEngine
 
 
 class InternetSearchAction:
+    browser_engine = BrowserEngine(headless=True)
+
     def __init__(self, llm_client: BaseLLMClient, browser_engine: BrowserEngine):
         self.llm_client = llm_client
         self.browser_engine = browser_engine

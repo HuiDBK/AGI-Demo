@@ -6,8 +6,11 @@
 # @Date: 2024/08/20 14:24
 import asyncio
 
-from src.actions import IntentRecognitionAction, InternetSearchAction
-from src.actions.content_summarize import WebPageSummaryAction
+from src.actions import (
+    IntentRecognitionAction,
+    InternetSearchAction,
+    WebPageSummaryAction,
+)
 from src.actions.schemas import IntentType
 from src.llm.client import OpenAIClient
 from src.llm.config import OpenAIConfig
@@ -26,14 +29,13 @@ def get_llm_client() -> OpenAIClient:
     return llm_client
 
 
-async def main():
-    llm_client = get_llm_client()
-
-    query = "总结这篇文章 https://juejin.cn/post/7283532551473725497"
+async def internet_recognition_action(query: str):
     print("query:", query)
+    llm_client = get_llm_client()
 
     # 意图识别
     intent_type = await IntentRecognitionAction(llm_client=llm_client).run(query)
+    print("intent type:", intent_type)
 
     if intent_type == IntentType.WEBPAGE_SUMMARIZE:
         # 网页总结
@@ -41,15 +43,34 @@ async def main():
         for token in resp:
             print(token, end="")
 
+    elif intent_type == IntentType.DOC_SUMMARIZE:
+        # 文档总结
+        print("resp: 暂无")
+
     elif intent_type == IntentType.SEARCH:
         # 联网搜索
         ie_search_action = InternetSearchAction(llm_client=llm_client)
         ret = await ie_search_action.run(query)
-        print(ret)
+        print("resp:", ret)
+
     else:
         # 裸llm
-        ret = llm_client.ask(query=query)
-        print(ret)
+        llm_client.setup_system_content()  # 共享同一个llm 需要清空之前配置的系统提示词
+        ret = await llm_client.aask(query=query)
+        print("resp:", ret)
+
+    print()
+
+
+async def main():
+    queries = [
+        "深圳天气情况",
+        "总结这pdf",
+        "你是谁",
+        "总结这篇文章 https://juejin.cn/post/7283532551473725497",
+    ]
+    for query in queries:
+        await internet_recognition_action(query)
 
 
 if __name__ == "__main__":

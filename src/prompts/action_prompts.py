@@ -20,16 +20,16 @@ INTENT_RECOGNITION_SYS_PROMPT = """你是一个意图识别模型，需要根据
 
 例子：
 - 用户输入："你好"
-  返回意图类型：NORMAL
+  返回：NORMAL
   
 - 用户输入："厦门天气情况"
-  返回意图类型：SEARCH
+  返回：SEARCH
 
 - 用户输入："帮我总结这篇文章 https://juejin.cn/post/7283532551473725497"
-  返回意图类型：WEBPAGE_SUMMARIZE
+  返回：WEBPAGE_SUMMARIZE
 
 - 用户输入："这个PDF文档的主要内容是什么？"
-  返回意图类型：DOC_SUMMARIZE
+  返回：DOC_SUMMARIZE
 
 请根据这些指引对用户的问题进行意图识别。
 """
